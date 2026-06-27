@@ -11,7 +11,7 @@ binds {
 
     //切换壁纸
     Mod+Shift+D hotkey-overlay-title="随机下载壁纸" { 
-        spawn "~/.local/bin/random-anime-wallpaper-noctalia"
+        spawn "/home/illusory/.config/niri/random-anime-wallpaper-noctalia"
     }
     // ─── 应用程序启动 ───
     // 打开终端（Alacritty）

@@ -1,0 +1,234 @@
+#!/usr/bin/env bash
+
+# ============================================
+# 随机动漫壁纸下载脚本 (Noctalia 环境)
+# 功能：从 API 下载随机壁纸 → 转换 PNG → 应用壁纸 → 清理旧文件
+# ============================================
+
+set -euo pipefail
+
+# ---------- 配置 ----------
+API_URL="https://t.alcy.cc/ycy"
+SAVE_DIR="$HOME/Pictures/Wallpapers/"
+KEEP_COUNT=40
+ENABLE_CLEANUP=true
+SILENT_MODE=false
+
+# ---------- 依赖检查 ----------
+check_dependencies() {
+    local deps=("curl" "notify-send" "qs")
+    local missing=()
+    
+    for dep in "${deps[@]}"; do
+        if ! command -v "$dep" >/dev/null 2>&1; then
+            missing+=("$dep")
+        fi
+    done
+    
+    # ImageMagick 检查（magick 或 convert）
+    if ! command -v magick >/dev/null 2>&1 && ! command -v convert >/dev/null 2>&1; then
+        missing+=("ImageMagick (magick/convert)")
+    fi
+    
+    if [[ ${#missing[@]} -gt 0 ]]; then
+        echo "错误: 缺少依赖: ${missing[*]}" >&2
+        echo "请安装: curl, imagemagick, libnotify, qs" >&2
+        exit 1
+    fi
+}
+
+# ---------- 通知函数 ----------
+send_notify() {
+    local title="$1"
+    local message="$2"
+    local extra="${3:-}"
+    
+    if [[ "$SILENT_MODE" == false ]]; then
+        # shellcheck disable=SC2086
+        notify-send "$title" "$message" \
+            --expire-time=5000 \
+            --icon=drive-harddisk \
+            --app-name="Wallpaper" \
+            $extra 2>/dev/null || true
+    fi
+}
+
+# ---------- 清理旧壁纸 ----------
+cleanup_old_wallpapers() {
+    if [[ "$ENABLE_CLEANUP" != true ]]; then
+        return 0
+    fi
+    
+    if [[ ! -d "$SAVE_DIR" ]]; then
+        return 0
+    fi
+    
+    cd "$SAVE_DIR" || return 0
+    
+    # 统计文件数量
+    local total_files
+    total_files=$(find . -maxdepth 1 -type f -name "*.png" | wc -l)
+    
+    if [[ $total_files -gt $KEEP_COUNT ]]; then
+        # 按时间排序，删除超出保留数量的旧文件
+        ls -t *.png 2>/dev/null | tail -n +$((KEEP_COUNT + 1)) | while read -r file; do
+            rm -f "$file"
+        done
+    fi
+}
+
+# ---------- 主逻辑 ----------
+main() {
+    # 创建保存目录
+    mkdir -p "$SAVE_DIR"
+    
+    # 生成时间戳文件名
+    local timestamp
+    timestamp=$(date +"%Y%m%d_%H%M%S_%N" | cut -c1-20)
+    local raw_path="${SAVE_DIR}/${timestamp}_raw.tmp"
+    local final_path="${SAVE_DIR}/${timestamp}.png"
+    
+    # ---------- 下载开始 ----------
+    send_notify "壁纸" "开始下载..." "--replace-id=999"
+    
+    # 启动心跳通知（下载超过 8 秒提醒）
+    local notify_pid=""
+    if [[ "$SILENT_MODE" == false ]]; then
+        (
+            sleep 8
+            while true; do
+                send_notify "壁纸" "下载中，请稍候..." "--replace-id=999"
+                sleep 8
+            done
+        ) &
+        notify_pid=$!
+    fi
+    
+    # ---------- 执行下载 ----------
+    local user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    
+    if ! curl -L -s -A "$user_agent" \
+        --connect-timeout 10 \
+        -m 120 \
+        -o "$raw_path" \
+        "$API_URL"; then
+        # 下载失败
+        [[ -n "$notify_pid" ]] && kill "$notify_pid" 2>/dev/null || true
+        send_notify "壁纸错误" "下载失败 (网络/API 错误)" "--replace-id=999"
+        rm -f "$raw_path"
+        exit 1
+    fi
+    
+    # 停止心跳通知
+    [[ -n "$notify_pid" ]] && kill "$notify_pid" 2>/dev/null || true
+    
+    # ---------- 校验文件 ----------
+    # 检查文件是否存在且大于 20KB
+    if [[ ! -f "$raw_path" ]] || [[ $(stat -c%s "$raw_path" 2>/dev/null || stat -f%z "$raw_path" 2>/dev/null) -lt 20480 ]]; then
+        send_notify "壁纸错误" "下载文件无效或小于 20KB" "--replace-id=999"
+        rm -f "$raw_path"
+        exit 1
+    fi
+    
+    # MIME 类型检查
+    if command -v file >/dev/null 2>&1; then
+        local mime_type
+        mime_type=$(file -b --mime-type "$raw_path" 2>/dev/null || echo "")
+        if [[ -n "$mime_type" ]] && [[ "$mime_type" != image/* ]]; then
+            send_notify "壁纸错误" "文件类型异常: $mime_type" "--replace-id=999"
+            rm -f "$raw_path"
+            exit 1
+        fi
+    fi
+    
+    # ---------- 转换为 PNG ----------
+    send_notify "壁纸" "转换格式中..." "--replace-id=999"
+    
+    local img_tool=""
+    if command -v magick >/dev/null 2>&1; then
+        img_tool="magick"
+    elif command -v convert >/dev/null 2>&1; then
+        img_tool="convert"
+    else
+        send_notify "壁纸错误" "ImageMagick 未安装" "--replace-id=999"
+        rm -f "$raw_path"
+        exit 1
+    fi
+    
+    if ! $img_tool "$raw_path" "$final_path" 2>/dev/null; then
+        send_notify "壁纸错误" "转换 PNG 失败" "--replace-id=999"
+        rm -f "$raw_path" "$final_path"
+        exit 1
+    fi
+    
+    # 删除原始文件
+    rm -f "$raw_path"
+    
+    # 验证转换后的文件
+    if [[ ! -f "$final_path" ]] || [[ $(stat -c%s "$final_path" 2>/dev/null || stat -f%z "$final_path" 2>/dev/null) -lt 10240 ]]; then
+        send_notify "壁纸错误" "转换后的 PNG 文件无效" "--replace-id=999"
+        rm -f "$final_path"
+        exit 1
+    fi
+    
+    # ---------- 应用壁纸 ----------
+    send_notify "壁纸" "应用壁纸..." "--replace-id=999"
+    
+    if ! noctalia msg wallpaper-set "$final_path"; then
+        send_notify "壁纸错误" "应用壁纸失败" "--replace-id=999"
+        exit 1
+    fi
+    
+    # ---------- 后台清理 ----------
+    (
+        # 等待壁纸应用完成
+        sleep 0.3
+        
+        # 清理旧壁纸（保留最近 40 张）
+        cleanup_old_wallpapers
+        
+        # 发送完成通知（仅当在非静默模式）
+        if [[ "$SILENT_MODE" == false ]]; then
+            notify-send "壁纸" "✅ 壁纸已应用" \
+                --expire-time=3000 \
+                --icon=face-smile \
+                --replace-id=999 2>/dev/null || true
+        fi
+    ) &
+    
+    echo "壁纸已应用: $final_path"
+}
+
+# ---------- 参数解析 ----------
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -s|--silent)
+            SILENT_MODE=true
+            shift
+            ;;
+        -k|--keep)
+            KEEP_COUNT="$2"
+            shift 2
+            ;;
+        -h|--help)
+            echo "用法: $0 [选项]"
+            echo ""
+            echo "选项:"
+            echo "  -s, --silent    静默模式（不发送通知）"
+            echo "  -k, --keep N    保留壁纸数量 (默认: 40)"
+            echo "  -h, --help      显示帮助信息"
+            exit 0
+            ;;
+        *)
+            echo "未知选项: $1" >&2
+            echo "使用 -h 查看帮助" >&2
+            exit 1
+            ;;
+    esac
+done
+
+# ---------- 执行 ----------
+check_dependencies
+main
+
+exit 0
