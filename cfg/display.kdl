@@ -1,0 +1,12 @@
+// ────────────── 显示器配置 ──────────────
+// 可以运行 `niri msg outputs` 获取显示器的正确名称
+// 需要移除 "/-" 前缀并修改配置后才能生效
+// https://github.com/YaLTeR/niri/wiki/Configuration:-Outputs
+
+output "eDP-1" {
+    mode "2560x1600@120.006"
+    scale 1.5
+    variable-refresh-rate // 注意：没有 = true 或任何参数
+}
+
+

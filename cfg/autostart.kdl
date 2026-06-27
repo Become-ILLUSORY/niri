@@ -1,0 +1,11 @@
+// ────────────── 开机自启应用 ──────────────
+// https://github.com/YaLTeR/niri/wiki/Configuration:-Miscellaneous#spawn-sh-at-startup
+
+
+    spawn-at-startup "noctalia"
+    // 启动 Noctalia Shell（Wayland 桌面环境组件）
+    // spawn-sh-at-startup "qs -c noctalia-shell"
+    // 启动 Fcitx5 输入法框架（中文输入法）
+    spawn-at-startup "fcitx5"
+    //1.2s后自动锁屏
+    // spawn-sh-at-startup "sleep 1.2 && qs -c noctalia-shell ipc call lockScreen lock

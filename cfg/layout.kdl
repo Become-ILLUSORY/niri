@@ -1,0 +1,22 @@
+layout {
+    gaps 16
+    // 移除 always-center-single-column，单窗口最大化时无需居中；如需保留0.5宽度单窗口居中可加回
+    default-column-width { proportion 0.5; }
+    background-color "transparent" // 背景透明（配合 noctalia-shell 设置壁纸）
+
+    // 预设列宽度比例，可通过 Mod+R 循环切换
+    preset-column-widths {
+        proportion 0.33333 // 1/3 屏幕宽度
+        proportion 0.5     // 1/2 屏幕宽度（默认，双窗口刚好平分）
+        proportion 0.66667 // 2/3 屏幕宽度
+        proportion 1.0     // 占满全屏
+    }
+
+    focus-ring {
+        on
+    }
+
+    border {
+        off
+    }
+}

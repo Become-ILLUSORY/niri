@@ -1,0 +1,116 @@
+// ── 1. 通用：所有窗口统一圆角并裁剪 ──
+window-rule {
+  // Rounded corners for a modern look.
+  geometry-corner-radius 20
+
+  // Clips window contents to the rounded corner boundaries.
+  clip-to-geometry true
+}
+
+// Floating Noctalia settings window.
+window-rule {
+  match app-id="dev.noctalia.Noctalia.Settings"
+  open-floating true
+  default-column-width { fixed 1080; }
+  default-window-height { fixed 920; }
+}
+
+
+
+
+// ── 2. 浮动窗口：额外加大阴影（更“浮起”的感觉） ──
+window-rule {
+  match is-floating=true
+  shadow {
+    on
+    softness 60
+    spread 16
+    offset x=0 y=12
+    draw-behind-window true
+    color "#00000070"
+    inactive-color "#00000028"
+  }
+}
+
+
+
+
+
+
+
+// ── 6. Alacritty：毛玻璃 ──
+window-rule {
+  match app-id="^Alacritty$"
+  opacity 0.85
+  geometry-corner-radius 10
+  clip-to-geometry true
+  
+  background-effect {
+    xray true
+    blur true
+  }
+}
+
+
+
+// ── 8. Zen浏览器：毛玻璃 ──
+window-rule {
+  match app-id="^zen$"          // 改成匹配 "zen"
+  opacity 0.85
+  geometry-corner-radius 10
+  clip-to-geometry true        // 这个能解决你之前遇到的边框变淡问题
+  
+  background-effect {
+    xray false
+    blur true
+  }
+}
+
+// ── 8. Spotify：毛玻璃 ──
+window-rule {
+  match app-id="^Spotify$"         
+  opacity 0.85
+  geometry-corner-radius 10
+  clip-to-geometry true      
+  
+  background-effect {
+    xray true
+    blur true
+  }
+}
+
+
+layer-rule {
+  match namespace="^noctalia-backdrop"
+  place-within-backdrop true
+}
+
+
+/* Apps: blur them all without xray so it looks more realistic. */
+window-rule {
+  background-effect {
+    blur true
+    xray false
+  }
+}
+
+/*
+  Noctalia
+  Disable xray on all our surfaces so it looks more realistic.
+  Noctalia publishes blur regions automatically when ext-background-effects is available.
+*/
+layer-rule {
+  match namespace="^noctalia-(bar-[^\"]+|notification|dock|panel|attached-panel|osd)$"
+  background-effect {
+    xray false
+    // blur false
+  }
+}
+
+/* You can also fine-tune the blur effect globally. */
+blur {
+  passes 2        // more passes = stronger blur (default: 3)
+  offset 3.0      // sample distance per pass (default: 3.0)
+  noise 0.03      // grain overlay (default: 0.02)
+  saturation 1.0  // color saturation boost (default: 1.5)
+}

@@ -1,0 +1,37 @@
+input {
+    keyboard {
+        xkb {
+            layout "us"
+        }
+        repeat-rate 30
+        repeat-delay 250
+    }
+
+    touchpad {
+        tap
+        tap-button-map "left-right-middle"
+        natural-scroll
+        dwt
+        scroll-factor 0.5
+
+        // 全区域按压：触控板任意位置按下去都有效
+        click-method "clickfinger"
+
+        // 指针加速对齐 macOS 手感
+        accel-profile "adaptive"
+        accel-speed 0.15
+
+        // 开启轻点拖拽（布尔选项，必须带 true/false 值）
+        drag true
+        // 拖拽锁定（flag 开关，直接写名称即可）
+        drag-lock
+    }
+
+    mouse {
+        // 去掉 natural-scroll，鼠标滚轮保持传统方向
+        // scroll-factor 0.3
+    }
+
+    workspace-auto-back-and-forth
+    // focus-follows-mouse
+}
