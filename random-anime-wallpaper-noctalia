@@ -16,7 +16,7 @@ SILENT_MODE=false
 
 # ---------- 依赖检查 ----------
 check_dependencies() {
-    local deps=("curl" "notify-send" "qs")
+    local deps=("curl" "notify-send")
     local missing=()
     
     for dep in "${deps[@]}"; do
