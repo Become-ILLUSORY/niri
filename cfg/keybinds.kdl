@@ -26,7 +26,7 @@ binds {
     Mod+Shift+Q                        hotkey-overlay-title="会话菜单: noctalia sessionMenu" { spawn-sh "noctalia msg panel-toggle session"; }
 
     // 打开文件管理器（请根据你使用的文件管理器修改）
-    Mod+E                               hotkey-overlay-title="文件管理器: Nautilus" { spawn "nautilus"; }
+    Mod+E                               hotkey-overlay-title="文件管理器: yazi" { spawn "alacritty" "-e" "yazi"; }
 
     // Audio & Brightness
     XF86AudioRaiseVolume { spawn-sh "noctalia msg volume-up"; }

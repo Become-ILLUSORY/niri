@@ -54,17 +54,17 @@ window-rule {
 
 
 // ── 8. Zen浏览器：毛玻璃 ──
-window-rule {
-  match app-id="^zen$"          // 改成匹配 "zen"
-  opacity 0.85
-  geometry-corner-radius 10
-  clip-to-geometry true        // 这个能解决你之前遇到的边框变淡问题
+// window-rule {
+//   match app-id="^zen$"          // 改成匹配 "zen"
+//   opacity 0.85
+//   geometry-corner-radius 10
+//   clip-to-geometry true        // 这个能解决你之前遇到的边框变淡问题
   
-  background-effect {
-    xray false
-    blur true
-  }
-}
+//   background-effect {
+//     xray false
+//     blur true
+//   }
+// }
 
 // ── 8. Spotify：毛玻璃 ──
 window-rule {

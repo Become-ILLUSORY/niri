@@ -9,3 +9,5 @@
     spawn-at-startup "fcitx5"
     //1.2s后自动锁屏
     // spawn-sh-at-startup "sleep 1.2 && qs -c noctalia-shell ipc call lockScreen lock
+
+    spawn-at-startup "xrdb" "-merge" ".Xresources"
