@@ -1,22 +1,66 @@
-layout {
-    gaps 16
-    // 移除 always-center-single-column，单窗口最大化时无需居中；如需保留0.5宽度单窗口居中可加回
-    default-column-width { proportion 0.5; }
-    background-color "transparent" // 背景透明（配合 noctalia-shell 设置壁纸）
+// ────────────── 布局配置 ──────────────
+// https://github.com/YaLTeR/niri/wiki/Configuration:-Layout
 
-    // 预设列宽度比例，可通过 Mod+R 循环切换
+layout {
+    // 工作区背景色（配合 noctalia-shell 壁纸使用时设为透明）
+    // https://github.com/YaLTeR/niri/wiki/Configuration:-Layout#background-color
+    background-color "transparent"
+
+    // 窗口之间的间距（逻辑像素），同时影响窗口内外的间距
+    gaps 12
+
+    // 聚焦列的居中策略：
+    //   "never"      — 默认，聚焦列移到屏幕边缘时停止（不自动居中）
+    //   "always"     — 始终将聚焦列居中显示
+    //   "on-overflow" — 仅当聚焦列无法与前一个聚焦列并排显示时才居中
+    center-focused-column "never"
+
+    // 始终居中单列（无视 center-focused-column 的设置，单窗口时居中显示）
+    always-center-single-column
+
+    // 预设列宽度比例，通过 Mod+Space 循环切换
+    // 每个值为输出宽度的比例（0.0-1.0），也可用 fixed <像素值>
     preset-column-widths {
-        proportion 0.33333 // 1/3 屏幕宽度
-        proportion 0.5     // 1/2 屏幕宽度（默认，双窗口刚好平分）
-        proportion 0.66667 // 2/3 屏幕宽度
-        proportion 1.0     // 占满全屏
+        proportion 0.33333   // 约 1/3 屏幕宽度
+        proportion 0.5       // 1/2 屏幕宽度（默认）
+        proportion 0.66667   // 约 2/3 屏幕宽度
     }
 
+    // 新窗口的默认列宽度
+    // 设为空 {} 则让窗口自行决定初始大小
+    default-column-width { proportion 0.5; }
+
+    // ── 聚焦环 ──（关闭，改用 border 边框区分聚焦状态）
     focus-ring {
+        off
+    }
+
+    // ── 边框 ──
+    // 开关、宽度、非聚焦颜色在此固定；active/urgent 颜色由 noctalia.kdl 根据壁纸调色板自动生成
+    border {
+        on
+        width 6
+        inactive-color "#00000000"   // 非聚焦窗口边框完全透明（不显示）
+    }
+
+    // ── 窗口阴影 ──（since 25.02）
+    // 阴影形状跟随窗口的 geometry-corner-radius 圆角
+    shadow {
+        on                              // 启用阴影
+        softness 10                     // 模糊半径（0 = 硬阴影）
+        spread 4                        // 阴影向外扩展的像素数
+        offset x=0 y=0                  // 阴影偏移量
+        color "#00000070"               // 阴影颜色（含 alpha 透明度）
+    }
+
+    // ── 标签页指示器 ──（since 25.02）
+    // 颜色由 noctalia.kdl 根据壁纸调色板自动生成
+    tab-indicator {
         on
     }
 
-    border {
-        off
+    // ── 插入提示 ──（since 0.1.10）
+    // 颜色由 noctalia.kdl 根据壁纸调色板自动生成
+    insert-hint {
     }
 }

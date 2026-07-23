@@ -1,45 +1,89 @@
-    // ────────────── 杂项配置 ──────────────
+// ────────────── 杂项配置 ──────────────
+// https://github.com/YaLTeR/niri/wiki/Configuration:-Miscellaneous
 
-    // 优先使用服务端窗口装饰（无客户端 CSD 边框）
-    prefer-no-csd
-
-    // 截图保存路径（null 表示使用默认路径）
-    screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
-
-    // ─── 环境变量 ───
-    // 为 Wayland 应用设置必要的环境变量
-    environment {
-        ELECTRON_OZONE_PLATFORM_HINT "auto"
-        QT_QPA_PLATFORM "wayland"
-        QT_QPA_PLATFORMTHEME "gtk3"
-        QT_WAYLAND_DISABLE_WINDOWDECORATION "1"
-        XDG_CURRENT_DESKTOP "niri"
-        XDG_SESSION_TYPE "wayland"
+// 禁用热角功能（鼠标移到屏幕角落时触发动作）
+gestures {
+    hot-corners {
+        off
     }
+}
 
-    // ─── 光标（鼠标指针）设置 ───
-    cursor {
-        xcursor-theme "capitaine-cursors" // 光标主题
-        xcursor-size 24                   // 光标大小
+// 请求服务端窗口装饰（CSD），让 niri 负责窗口边框而非应用自身
+// https://github.com/YaLTeR/niri/wiki/Configuration:-Miscellaneous#prefer-no-csd
+prefer-no-csd
+
+// 截图保存路径，支持 strftime 格式化时间戳
+// https://github.com/YaLTeR/niri/wiki/Configuration:-Miscellaneous#screenshot-path
+screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
+
+// ─── 环境变量 ───
+// 在 niri 启动时设置，传递给所有子进程
+// https://github.com/YaLTeR/niri/wiki/Configuration:-Miscellaneous#environment
+environment {
+    XDG_CURRENT_DESKTOP "niri"              // 告诉系统当前桌面环境是 niri
+    XDG_SESSION_TYPE "wayland"              // 声明会话类型为 Wayland
+    GTK_IM_MODULE ""                        // 禁用 GTK 输入法模块（避免与 Fcitx5 冲突）
+    ELECTRON_OZONE_PLATFORM_HINT "auto"     // Electron 应用自动选择 Wayland 后端
+    QT_QPA_PLATFORM "wayland"               // Qt 应用使用 Wayland 平台插件
+    QT_QPA_PLATFORMTHEME "gtk3"             // Qt 平台主题跟随 GTK3
+    QT_WAYLAND_DISABLE_WINDOWDECORATION "1" // 禁用 Qt 应用的客户端窗口装饰
+}
+
+// ─── 光标（鼠标指针）设置 ───
+// https://github.com/YaLTeR/niri/wiki/Configuration:-Miscellaneous#cursor
+cursor {
+    xcursor-theme "Adwaita"   // 光标主题名称（对应 /usr/share/icons/ 下的主题目录）
+    xcursor-size 24           // 光标大小（像素）
+}
+
+// ─── 模糊效果 ───
+// 控制 background-effect 中 blur=true 时的全局模糊参数
+// https://github.com/YaLTeR/niri/wiki/Configuration:-Miscellaneous#blur
+blur {
+    passes 3        // 模糊迭代次数，越多越模糊（性能开销也越大）
+    offset 2.3      // 每次迭代的采样距离
+    noise 0.001     // 噪点强度（0 = 无噪点），增加质感
+    saturation 2    // 颜色饱和度增强倍数（1.0 = 原始，2.0 = 200%）
+}
+
+// ── 调试选项 ──
+debug {
+    // 允许带有无效 serial 的 xdg-activation 窗口激活请求
+    // 某些应用（如 Noctalia）依赖此行为来正确激活窗口
+    honor-xdg-activation-with-invalid-serial
+}
+
+// ── 最近使用的窗口（Alt+Tab 切换器） ──
+// 提供类似传统桌面的窗口切换功能
+//   scope="output"  — 仅在当前显示器范围内切换
+//   filter="app-id" — 按 app-id 去重，同一应用只显示一个窗口
+recent-windows {
+    binds {
+        Alt+Tab         { next-window scope="output"; }        // 切换到下一个窗口
+        Alt+Shift+Tab   { previous-window scope="output"; }    // 切换到上一个窗口
+        Alt+grave       { next-window filter="app-id"; }       // 按应用去重切换（下一个应用）
+        Alt+Shift+grave { previous-window filter="app-id"; }   // 按应用去重切换（上一个应用）
     }
-
-
-    blur {
-        passes 2        // more passes = stronger blur (default: 3)
-        offset 3.0      // sample distance per pass (default: 3.0)
-        noise 0.03      // grain overlay (default: 0.02)
-        saturation 1.0  // color saturation boost (default: 1.5)
+    highlight {
+        corner-radius 12
+        active-color "#b6c7e7"     // 当前选中窗口的高亮色
+        urgent-color "#ffb4ab"     // 紧急窗口的高亮色
     }
-    // ─── 调试选项 ───
-    debug {
-        // 允许 Noctalia 的通知操作和窗口激活
-        honor-xdg-activation-with-invalid-serial
+}
+
+// ── 快捷键覆盖层 ──
+// 启动时自动显示所有绑定快捷键的浮层
+// https://github.com/YaLTeR/niri/wiki/Configuration:-Miscellaneous#hotkey-overlay
+hotkey-overlay {
+    skip-at-startup     // 启动时不显示快捷键覆盖层
+    hide-not-bound      // 隐藏未绑定快捷键的条目
+}
+
+// ── 概览模式 ──
+// Mod+W 触发时显示所有工作区缩略图的外观
+overview {
+    backdrop-color "#4c566a90"    // 概览背景色（含 alpha 透明度）
+    workspace-shadow {
+        off                       // 关闭概览中工作区缩略图的阴影
     }
-
-    // ─── 快捷键覆盖层 ───
-    hotkey-overlay {
-       skip-at-startup // 启动时不显示快捷键覆盖层
-       hide-not-bound  
-    }
-
-
+}

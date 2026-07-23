@@ -183,7 +183,10 @@ main() {
     (
         # 等待壁纸应用完成
         sleep 0.3
-        
+
+        # 根据新壁纸重新生成调色板（更新 noctalia.kdl 中的边框/焦点环颜色）
+        noctalia theme 2>/dev/null || true
+
         # 清理旧壁纸（保留最近 40 张）
         cleanup_old_wallpapers
         

@@ -1,116 +1,136 @@
-// ── 1. 通用：所有窗口统一圆角并裁剪 ──
-window-rule {
-  // Rounded corners for a modern look.
-  geometry-corner-radius 20
+// ────────────── 窗口规则 ──────────────
+// https://github.com/YaLTeR/niri/wiki/Configuration:-Window-rules
+//
+// 窗口规则按书写顺序依次匹配，后面的规则会覆盖前面规则中的同名属性。
+// 匹配逻辑：
+//   多个 match 之间是 OR 关系（匹配任意一个即生效）
+//   同一个 match 内的多个条件是 AND 关系（全部满足才匹配）
+//   exclude 用于排除特定窗口，被排除的窗口不会应用该规则
 
-  // Clips window contents to the rounded corner boundaries.
-  clip-to-geometry true
+// ═══════════════════════════════════════════
+//  一、全局规则（无 match，对所有窗口生效）
+// ═══════════════════════════════════════════
+
+// 所有窗口统一圆角 + 毛玻璃背景
+window-rule {
+    geometry-corner-radius 12       // 圆角半径（逻辑像素），支持 1 个值（统一）或 4 个值（左上/右上/右下/左下）
+    clip-to-geometry true           // 裁剪窗口内容到圆角边界内，消除圆角外溢出的内容
+    draw-border-with-background false  // 边框/焦点环不以纯色矩形绘制（透明背景）
+    opacity 0.9                     // 窗口透明度，范围 0.0（全透明）到 1.0（不透明）
+    background-effect {
+        blur true                   // 启用窗口背后的模糊效果
+        xray false                  // xray=false: 模糊所有内容；xray=true: 仅模糊壁纸层（性能更好）
+    }
 }
 
-// Floating Noctalia settings window.
+// ═══════════════════════════════════════════
+//  二、特定应用规则
+// ═══════════════════════════════════════════
+
+// Noctalia 设置面板 — 浮动显示
 window-rule {
-  match app-id="dev.noctalia.Noctalia.Settings"
-  open-floating true
-  default-column-width { fixed 1080; }
-  default-window-height { fixed 920; }
+    match app-id="dev.noctalia.Noctalia"
+    open-floating true              // open-floating — 窗口以浮动模式打开（而非平铺）
 }
 
-
-
-
-// ── 2. 浮动窗口：额外加大阴影（更“浮起”的感觉） ──
+// Nautilus 文件管理器 — 浮动 + 毛玻璃 + 无边框背景
 window-rule {
-  match is-floating=true
-  shadow {
-    on
-    softness 60
-    spread 16
-    offset x=0 y=12
-    draw-behind-window true
-    color "#00000070"
-    inactive-color "#00000028"
-  }
+    match app-id=r"^org\.gnome\.Nautilus$"
+    open-floating true
+    draw-border-with-background false
+    background-effect { blur true; xray true; }
 }
 
-
-
-
-
-
-
-// ── 6. Alacritty：毛玻璃 ──
+// Steam 桌面通知 — 浮动并定位到右下角
 window-rule {
-  match app-id="^Alacritty$"
-  opacity 0.85
-  geometry-corner-radius 10
-  clip-to-geometry true
-  
-  background-effect {
-    xray true
-    blur true
-  }
+    match app-id=r"^steam$" title=r"^notificationtoasts_\d+_desktop$"
+    // default-floating-position — 浮动窗口的初始位置
+    // relative-to="bottom-right" 表示相对于屏幕右下角定位
+    default-floating-position x=10 y=10 relative-to="bottom-right"
 }
 
-
-
-// ── 8. Zen浏览器：毛玻璃 ──
-// window-rule {
-//   match app-id="^zen$"          // 改成匹配 "zen"
-//   opacity 0.85
-//   geometry-corner-radius 10
-//   clip-to-geometry true        // 这个能解决你之前遇到的边框变淡问题
-  
-//   background-effect {
-//     xray false
-//     blur true
-//   }
-// }
-
-// ── 8. Spotify：毛玻璃 ──
+// Wine 应用 — 浮动且占满宽度，不绘制边框背景
 window-rule {
-  match app-id="^Spotify$"         
-  opacity 0.85
-  geometry-corner-radius 10
-  clip-to-geometry true      
-  
-  background-effect {
-    xray true
-    blur true
-  }
+    match app-id="wine"
+    open-floating true
+    default-column-width { proportion 1.0; }   // 占满整个工作区宽度
+    draw-border-with-background false
 }
 
+// Steam 客户端 — 毛玻璃效果
+window-rule {
+    match app-id="steam"
+    opacity 0.9
+    background-effect { blur true; xray true; }
+}
 
+// Zen 浏览器 — 不绘制边框背景 + 毛玻璃
+window-rule {
+    match app-id="app.zen_browser.zen"
+    draw-border-with-background false
+    background-effect { blur true; xray true; }
+}
+
+// ═══════════════════════════════════════════
+//  三、游戏专属规则：禁用所有特效，最大化性能
+// ═══════════════════════════════════════════
+
+window-rule {
+    // 匹配 Steam 游戏（原生或 Proton 运行）、Gamescope 微型合成器、Wine 环境
+    match app-id=r"^steam_app_.*"
+    match app-id=r"^gamescope$"
+    match app-id=r"^wine$"
+    // 通过窗口标题正则匹配特定游戏（忽略大小写）
+    match title=r"(?i)genshin impact|zenless zone zero|victoria 3|Minecraft|Endfield"
+
+    opacity 1.0                     // 完全不透明
+    background-effect {
+        blur false                   // 关闭模糊，节省 GPU 算力
+    }
+    draw-border-with-background false  // 不绘制边框，避免渲染干扰
+}
+
+// ═══════════════════════════════════════════
+//  四、视频播放相关
+// ═══════════════════════════════════════════
+
+// 画中画窗口 — 浮动、不透明、定位到右下角
+window-rule {
+    match title="画中画"
+    match title="Picture-in-Picture"
+    open-floating true
+    opacity 1.0                      // 视频内容保持完全不透明
+    default-column-width             // 让窗口自行决定宽度（解锁拉伸限制）
+    default-window-height            // 让窗口自行决定高度
+    default-floating-position x=20 y=20 relative-to="bottom-right"
+}
+
+// 视频编辑/播放软件 — 完全不透明（避免画面失真）
+window-rule {
+    match app-id="org.kde.kdenlive"  // Kdenlive 视频编辑器
+    match app-id="mpv"               // mpv 播放器
+    match app-id="kazumi"            // Kazumi 动漫追踪
+    opacity 1.0
+}
+
+// ═══════════════════════════════════════════
+//  五、图层规则（Layer Rules）
+// ═══════════════════════════════════════════
+// 图层规则作用于 layer-shell 协议的表面（壁纸、面板、通知等），而非普通窗口
+// https://github.com/YaLTeR/niri/wiki/Configuration:-Layer-rules
+
+// Noctalia 壁纸层 — 放置在背景层（behind 所有普通窗口）
 layer-rule {
-  match namespace="^noctalia-backdrop"
-  place-within-backdrop true
+    match namespace="^noctalia-backdrop"   // namespace — layer-shell 的命名空间标识
+    place-within-backdrop true             // 将该层放入背景层，显示在所有窗口后面
 }
 
-
-/* Apps: blur them all without xray so it looks more realistic. */
-window-rule {
-  background-effect {
-    blur true
-    xray false
-  }
-}
-
-/*
-  Noctalia
-  Disable xray on all our surfaces so it looks more realistic.
-  Noctalia publishes blur regions automatically when ext-background-effects is available.
-*/
+// Noctalia 所有 UI 组件 — 关闭 xray，让毛玻璃效果更真实
+// 匹配：状态栏(bar)、通知(notification)、Dock、面板(panel)、附加面板、OSD
 layer-rule {
-  match namespace="^noctalia-(bar-[^\"]+|notification|dock|panel|attached-panel|osd)$"
-  background-effect {
-    xray false
-    // blur false
-  }
-}
-
-/* You can also fine-tune the blur effect globally. */
-blur {
-  passes 2        // more passes = stronger blur (default: 3)
-  offset 3.0      // sample distance per pass (default: 3.0)
-  noise 0.03      // grain overlay (default: 0.02)
-  saturation 1.0  // color saturation boost (default: 1.5)
+    match namespace="^noctalia-(bar-[^\"]+|notification|dock|panel|attached-panel|osd)$"
+    background-effect {
+        xray false                  // 关闭 xray，模糊背后的所有内容（而非仅壁纸层）
+        // blur false               // 如需关闭模糊可取消注释
+    }
 }
