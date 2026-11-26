@@ -1,0 +1,152 @@
+binds {
+
+    // ─── Noctalia Shell 快捷键 ───
+    // https://docs.noctalia.dev/getting-started/keybinds/
+
+    // 显示快捷键覆盖层
+    Mod+Shift+ESCAPE                     hotkey-overlay-title="显示快捷键覆盖层" { show-hotkey-overlay; }
+
+    // 切换壁纸
+    Mod+Shift+D                          hotkey-overlay-title="随机下载壁纸" {
+        spawn "~/.local/bin/alcywall" "next"
+    }
+
+    // ─── 应用程序启动 ───
+    // 打开终端（Alacritty）
+    Mod+Return                           hotkey-overlay-title="打开终端: Alacritty" { spawn "alacritty"; }
+    // 打开应用启动器
+    Mod+ALT+Return                       hotkey-overlay-title="应用启动器: noctalia launcher" { spawn-sh "noctalia msg panel-toggle launcher"; }
+    // 打开浏览器（Zen Browser）
+    Mod+B                                hotkey-overlay-title="打开浏览器: zen-browser" { spawn "zen-browser"; }
+    // 锁屏
+    Mod+ALT+L                            hotkey-overlay-title="锁屏: noctalia lock" { spawn-sh "noctalia msg session lock"; }
+    // 会话菜单（注销、重启、关机等）
+    Mod+Shift+Q                          hotkey-overlay-title="会话菜单: noctalia sessionMenu" { spawn-sh "noctalia msg panel-toggle session"; }
+    // 打开设置
+    Mod+I                                hotkey-overlay-title="打开设置: noctalia settings" { spawn-sh "noctalia msg settings-toggle"; }
+    // 打开文件管理器（请根据你使用的文件管理器修改）
+    Mod+E                                hotkey-overlay-title="文件管理器: nautilus" { spawn "nautilus"; }
+
+    // ─── 媒体控制 ───
+    XF86AudioRaiseVolume                 allow-when-locked=true { spawn-sh "noctalia msg volume-up"; }
+    XF86AudioLowerVolume                 allow-when-locked=true { spawn-sh "noctalia msg volume-down"; }
+    XF86AudioMute                        allow-when-locked=true { spawn-sh "noctalia msg volume-mute"; }
+    XF86AudioMicMute                     allow-when-locked=true { spawn-sh "noctalia msg mic-mute"; }
+    XF86AudioNext                        allow-when-locked=true { spawn-sh "noctalia msg media next"; }
+    XF86AudioPrev                        allow-when-locked=true { spawn-sh "noctalia msg media previous"; }
+    XF86AudioPlay                        allow-when-locked=true { spawn-sh "noctalia msg media play"; }
+    XF86AudioPause                       allow-when-locked=true { spawn-sh "noctalia msg media stop"; }
+
+    // ─── 亮度控制 ───
+    XF86MonBrightnessUp                  allow-when-locked=true { spawn-sh "noctalia msg brightness-up"; }
+    XF86MonBrightnessDown                allow-when-locked=true { spawn-sh "noctalia msg brightness-down"; }
+
+    // ─── 窗口移动与焦点控制 ───
+    // 关闭当前窗口
+    Mod+Q                                hotkey-overlay-title="关闭窗口" { close-window; }
+    // 焦点向左移动
+    Mod+Left                             hotkey-overlay-title="焦点向左移动" { focus-column-left; }
+    // 焦点向右移动
+    Mod+Right                            hotkey-overlay-title="焦点向右移动" { focus-column-right; }
+    // 焦点向上移动
+    Mod+Up                               hotkey-overlay-title="焦点向上移动" { focus-window-up; }
+    // 焦点向下移动
+    Mod+Down                             hotkey-overlay-title="焦点向下移动" { focus-window-down; }
+    // 移动列到左边
+    Mod+CTRL+Left                        hotkey-overlay-title="移动列到左边" { move-column-left; }
+    // 移动列到右边
+    Mod+CTRL+Right                       hotkey-overlay-title="移动列到右边" { move-column-right; }
+    // 移动窗口向上
+    Mod+CTRL+Up                          hotkey-overlay-title="移动窗口向上" { move-window-up; }
+    // 移动窗口向下
+    Mod+CTRL+Down                        hotkey-overlay-title="移动窗口向下" { move-window-down; }
+    // 聚焦第一列
+    Mod+Home                             hotkey-overlay-title="聚焦第一列" { focus-column-first; }
+    // 聚焦最后一列
+    Mod+End                              hotkey-overlay-title="聚焦最后一列" { focus-column-last; }
+    // 移动列到第一位
+    Mod+CTRL+Home                        hotkey-overlay-title="移动列到第一位" { move-column-to-first; }
+    // 移动列到最后一位
+    Mod+CTRL+End                         hotkey-overlay-title="移动列到最后一位" { move-column-to-last; }
+
+    // ─── 工作区切换 ───
+    // 向下切换工作区（滚轮）
+    Mod+WheelScrollDown                  hotkey-overlay-title="向下切换工作区" cooldown-ms=150 { focus-workspace-down; }
+    // 向上切换工作区（滚轮）
+    Mod+WheelScrollUp                    hotkey-overlay-title="向上切换工作区" cooldown-ms=150 { focus-workspace-up; }
+    // 移动列到下方工作区（滚轮）
+    Mod+CTRL+WheelScrollDown             hotkey-overlay-title="移动列到下方工作区" cooldown-ms=150 { move-column-to-workspace-down; }
+    // 移动列到上方工作区（滚轮）
+    Mod+CTRL+WheelScrollUp               hotkey-overlay-title="移动列到上方工作区" cooldown-ms=150 { move-column-to-workspace-up; }
+    // Shift+滚轮：切换列方向
+    Mod+Shift+WheelScrollDown            hotkey-overlay-title="向右切换列" { focus-column-right; }
+    Mod+Shift+WheelScrollUp              hotkey-overlay-title="向左切换列" { focus-column-left; }
+    Mod+CTRL+Shift+WheelScrollDown       hotkey-overlay-title="向右移动列" { move-column-right; }
+    Mod+CTRL+Shift+WheelScrollUp         hotkey-overlay-title="向左移动列" { move-column-left; }
+    // 切换到指定工作区（1-5）
+    Mod+1                                hotkey-overlay-title="切换到工作区1" { focus-workspace 1; }
+    Mod+2                                hotkey-overlay-title="切换到工作区2" { focus-workspace 2; }
+    Mod+3                                hotkey-overlay-title="切换到工作区3" { focus-workspace 3; }
+    Mod+4                                hotkey-overlay-title="切换到工作区4" { focus-workspace 4; }
+    Mod+5                                hotkey-overlay-title="切换到工作区5" { focus-workspace 5; }
+    // 移动列到指定工作区（1-5）
+    Alt+1                                hotkey-overlay-title="移动列到工作区1" { move-column-to-workspace 1; }
+    Alt+2                                hotkey-overlay-title="移动列到工作区2" { move-column-to-workspace 2; }
+    Alt+3                                hotkey-overlay-title="移动列到工作区3" { move-column-to-workspace 3; }
+    Alt+4                                hotkey-overlay-title="移动列到工作区4" { move-column-to-workspace 4; }
+    Alt+5                                hotkey-overlay-title="移动列到工作区5" { move-column-to-workspace 5; }
+    // 切换到上一个工作区
+    Mod+TAB                              hotkey-overlay-title="切换到上一个工作区" { focus-workspace-previous; }
+
+    // ─── 布局控制 ───
+    // 将列扩展到可用宽度
+    Mod+CTRL+F                           hotkey-overlay-title="扩展列到可用宽度" { expand-column-to-available-width; }
+    // 将列居中
+    Mod+C                                hotkey-overlay-title="居中列" { center-column; }
+    // 将所有可见列居中
+    Mod+CTRL+C                           hotkey-overlay-title="居中所有可见列" { center-visible-columns; }
+    // 减小列宽度 10%
+    Mod+Minus                            hotkey-overlay-title="减小列宽度10%" { set-column-width "-10%"; }
+    // 增大列宽度 10%
+    Mod+Equal                            hotkey-overlay-title="增大列宽度10%" { set-column-width "+10%"; }
+    // 减小窗口高度 10%
+    Mod+Shift+Minus                      hotkey-overlay-title="减小窗口高度10%" { set-window-height "-10%"; }
+    // 增大窗口高度 10%
+    Mod+Shift+Equal                      hotkey-overlay-title="增大窗口高度10%" { set-window-height "+10%"; }
+
+    // ─── 鼠标操作 ───
+    // niri 的 Mod+左键拖动移动窗口、Mod+右键拖动缩放窗口是内置行为，无法（也无需）在 binds 中绑定
+    // Mod+LeftMouse  /  Mod+RightMouse 不被 niri 支持，写了会报 "invalid key"
+
+    // ─── 窗口模式 ───
+    // 切换窗口浮动模式
+    Mod+A                                hotkey-overlay-title="切换浮动模式" { toggle-window-floating; }
+    // 全屏切换
+    Mod+F                                hotkey-overlay-title="切换全屏" { fullscreen-window; }
+    // 最大化列
+    Mod+M                                hotkey-overlay-title="最大化列" { maximize-column; }
+    // 切换列宽度预设
+    Mod+R                                hotkey-overlay-title="切换列宽度预设" { switch-preset-column-width; }
+
+    // ─── 截图 ───
+    // 全屏截图
+    Mod+Shift+S                          hotkey-overlay-title="全屏截图" { screenshot; }
+    // 当前显示器截图
+    Ctrl+Shift+2                         hotkey-overlay-title="当前显示器截图" { screenshot-screen; }
+    // 当前窗口截图
+    Ctrl+Shift+3                         hotkey-overlay-title="当前窗口截图" { screenshot-window; }
+
+    // ─── 紧急退出键 ───
+    // 当全屏应用屏蔽了你的快捷键时使用
+    // 它会禁用任何活动的键盘快捷键拦截器，恢复控制
+    Mod+ESCAPE                           hotkey-overlay-title="紧急退出键" allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
+
+    // ─── 退出 / 电源 ───
+    // 退出 Niri（注销）
+    Ctrl+Alt+Delete                      hotkey-overlay-title="退出Niri" { quit; }
+    // 关闭显示器（适用于 OLED 屏幕保护或隐私）
+    Mod+Shift+P                          hotkey-overlay-title="关闭显示器" { power-off-monitors; }
+
+    // 切换概览模式
+    Mod+W                                hotkey-overlay-title="切换概览模式" repeat=false { toggle-overview; }
+}
